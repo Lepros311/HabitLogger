@@ -1,5 +1,26 @@
-﻿string? userMenuChoice;
+﻿using System;
+using System.Data.SQLite;
+
+string? userMenuChoice;
 bool closeApp = false;
+
+string connectionString = @"Data Source=HabitLogger.db";
+
+using (var connection = new SQLiteConnection(connectionString))
+{
+    connection.Open();
+    var tableCmd = connection.CreateCommand();
+
+    tableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS drinking_water (
+                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                Date TEXT,
+                                Quantity INTEGER
+                                )"; 
+
+    tableCmd.ExecuteNonQuery();
+
+    connection.Close();
+}
 
 // Function for user to select menu option
 void UserSelectMenuOption()
