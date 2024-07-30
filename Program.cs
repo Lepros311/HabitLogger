@@ -59,7 +59,46 @@ void ViewAllRecords()
 // Function to insert record (2)
 void InsertRecord()
 {
-    Console.WriteLine("Let's insert a record...");
+    Console.WriteLine("Please insert the date: (Format: mm-dd-yy). Type 0 to return to main menu");
+
+    string? dateInput = Console.ReadLine();
+
+    if (dateInput == "0")
+    {
+        UserSelectMenuOption();
+    }
+
+    string date = "";
+
+    if (dateInput != null)
+    {
+        date = dateInput;
+    }
+
+    Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
+
+    string? numberInput = Console.ReadLine();
+
+    if (numberInput == "0")
+    {
+        UserSelectMenuOption();
+    }
+
+    int finalInput = Convert.ToInt32(numberInput);
+
+    int quantity = finalInput;
+
+    using (var connection = new SQLiteConnection(connectionString))
+    {
+        connection.Open();
+        var tableCmd = connection.CreateCommand();
+        tableCmd.CommandText =
+            $"INSERT INTO drinking_water(date, quantity) VALUES('{date}', {quantity})";
+
+        tableCmd.ExecuteNonQuery();
+
+        connection.Close();
+    }
 }
 
 // Function to delete record (3)
