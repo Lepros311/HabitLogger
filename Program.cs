@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.Collections.Generic;
+using System.Globalization;
 
 string? userMenuChoice;
 bool closeApp = false;
@@ -43,17 +45,47 @@ void UserSelectMenuOption()
     } while (!menuOptions.Contains(userMenuChoice));
 }
 
-// Function to close application (0)
-void CloseApplication()
-{
-    closeApp = true;
-    Console.WriteLine("Goodbye!");
-}
-
 // Function to view all records (1)
 void ViewAllRecords()
 {
-    Console.WriteLine("Here's all your records:");
+    using (var connection = new SQLiteConnection(connectionString))
+    {
+        connection.Open();
+        var tableCmd = connection.CreateCommand();
+        tableCmd.CommandText =
+            $"SELECT * FROM drinking_water";
+
+        List<DrinkingWater> tableData = new();
+
+        SQLiteDataReader reader = tableCmd.ExecuteReader();
+
+        if (reader.HasRows)
+        {
+            while (reader.Read())
+            {
+                tableData.Add(
+                new DrinkingWater
+                {
+                    Id = reader.GetInt32(0),
+                    Date = DateTime.ParseExact(reader.GetString(1), "MM-dd-yy", new CultureInfo("en-US")),
+                    Quantity = reader.GetInt32(2)
+                });
+            }
+        }
+        else
+        {
+            Console.WriteLine("No rows found");
+        }
+
+        connection.Close();
+
+        Console.WriteLine("-----------------------------------------------\n");
+        foreach (var dw in tableData)
+        {
+            Console.WriteLine($"{dw.Id} - {dw.Date.ToString("MMM-dd-yyyy")} - Quantity: {dw.Quantity}");
+        }
+        Console.WriteLine("-----------------------------------------------\n");
+    }
 }
 
 // Function to insert record (2)
@@ -65,7 +97,7 @@ void InsertRecord()
 
     if (dateInput == "0")
     {
-        UserSelectMenuOption();
+        return;
     }
 
     string date = "";
@@ -78,11 +110,6 @@ void InsertRecord()
     Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
 
     string? numberInput = Console.ReadLine();
-
-    if (numberInput == "0")
-    {
-        UserSelectMenuOption();
-    }
 
     int finalInput = Convert.ToInt32(numberInput);
 
@@ -122,7 +149,9 @@ do
     switch (userMenuChoice)
     {
         case "0":
-            CloseApplication();
+            Console.WriteLine("Goodbye!");
+            closeApp = true;
+            Environment.Exit(0);
             break;
         case "1":
             ViewAllRecords();
@@ -139,3 +168,14 @@ do
     }
 
 } while (closeApp == false);
+
+
+public class DrinkingWater
+{
+    public int Id { get; set; }
+
+    public DateTime Date { get; set; }
+
+    public int Quantity { get; set; }
+
+}
