@@ -66,7 +66,7 @@ void ViewAllRecords()
                 tableData.Add(
                 new DrinkingWater
                 {
-                    Id = reader.GetInt32(0),
+                    ID = reader.GetInt32(0),
                     Date = DateTime.ParseExact(reader.GetString(1), "MM-dd-yy", new CultureInfo("en-US")),
                     Quantity = reader.GetInt32(2)
                 });
@@ -82,7 +82,7 @@ void ViewAllRecords()
         Console.WriteLine("-----------------------------------------------\n");
         foreach (var dw in tableData)
         {
-            Console.WriteLine($"{dw.Id} - {dw.Date.ToString("MMM-dd-yyyy")} - Quantity: {dw.Quantity}");
+            Console.WriteLine($"{dw.ID} - {dw.Date.ToString("MMM-dd-yyyy")} - Quantity: {dw.Quantity}");
         }
         Console.WriteLine("-----------------------------------------------\n");
     }
@@ -131,13 +131,125 @@ void InsertRecord()
 // Function to delete record (3)
 void DeleteRecord()
 {
-    Console.WriteLine("Let's delete a record...");
+    ViewAllRecords();
+
+    Console.WriteLine("Please type the ID of the record you want to delete or type 0 to return to Main Menu\n");
+
+    string? idInput = Console.ReadLine();
+
+    if (idInput == "0")
+    {
+        return;
+    }
+
+    while (!Int32.TryParse(idInput, out _) || Convert.ToInt32(idInput) < 0)
+    {
+        Console.WriteLine("\nInvalid number, try again.\n");
+        idInput = Console.ReadLine();
+    }
+
+    var recordID = Convert.ToInt32(idInput);
+
+    using (var connection = new SQLiteConnection(connectionString))
+    {
+        connection.Open();
+        var tableCmd = connection.CreateCommand();
+
+        tableCmd.CommandText = $"DELETE from drinking_water WHERE ID = '{recordID}'";
+
+        int rowCount = tableCmd.ExecuteNonQuery();
+
+        if (rowCount == 0)
+        {
+            Console.WriteLine($"\nRecord with ID {recordID} doesn't exist.\n");
+            DeleteRecord();
+        }
+    }
+
+    Console.WriteLine($"\nRecord with ID {recordID} was deleted.\n");
+
+    return;
 }
 
 // Function to update record (4)
 void UpdateRecord()
 {
-    Console.WriteLine("Let's update a record...");
+    while (true)
+    { 
+        ViewAllRecords();
+
+        Console.WriteLine("Please type the ID of the record you would like to update. Type 0 to return to Main Menu.");
+
+        string? idInput = Console.ReadLine();
+
+        if (idInput == "0")
+        {
+            return;
+        }
+
+        while (!Int32.TryParse(idInput, out _) || Convert.ToInt32(idInput) < 0)
+        {
+            Console.WriteLine("\nInvalid number, try again.\n");
+            idInput = Console.ReadLine();
+        }
+
+        var recordID = Convert.ToInt32(idInput);
+
+        using (var connection = new SQLiteConnection(connectionString))
+        {
+            connection.Open();
+
+            var checkCmd = connection.CreateCommand();
+            checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM drinking_water WHERE ID = {recordID})";
+            int checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+            if (checkQuery == 0)
+            {
+                Console.WriteLine($"\nRecord with ID {recordID} doesn't exist.\n");
+                continue;
+            }
+
+            Console.WriteLine("Please insert the date: (Format: mm-dd-yy). Type 0 to return to main menu");
+
+            string? dateInput = Console.ReadLine();
+
+            if (dateInput == "0")
+            {
+                return;
+            }
+
+            string date = "";
+
+            if (dateInput != null)
+            {
+                date = dateInput;
+            }
+
+            Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
+
+            string? numberInput = Console.ReadLine();
+
+            int finalInput = Convert.ToInt32(numberInput);
+
+            int quantity = finalInput;
+
+            var tableCmd = connection.CreateCommand();
+            tableCmd.CommandText = $"UPDATE drinking_water SET date = '{date}', quantity = {quantity} WHERE ID = {recordID}";
+
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                connection.Open();
+            }
+
+            tableCmd.ExecuteNonQuery();
+
+            connection.Close();
+
+            Console.WriteLine($"\nRecord with ID {recordID} was updated.");
+
+            break;
+        }
+    }
 }
 
 // Habit Logger 
@@ -172,7 +284,7 @@ do
 
 public class DrinkingWater
 {
-    public int Id { get; set; }
+    public int ID { get; set; }
 
     public DateTime Date { get; set; }
 
