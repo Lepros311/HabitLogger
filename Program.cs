@@ -9,12 +9,16 @@ bool closeApp = false;
 string? habit;
 string? unitOfMeasure;
 
+
+
 do
 {
     Console.WriteLine("What habit would you like to track?");
     habit = Console.ReadLine();
     if (habit != null)
     {
+        habit = habit.Trim();
+        habit = habit.ToLower();
         habit = habit.Replace(" ", "_");
     }
 } while (habit == null);
@@ -43,10 +47,116 @@ using (var connection = new SQLiteConnection(connectionString))
     connection.Close();
 }
 
+//Console.WriteLine("\nThese are the habits you currently have logged:");
+
+//int habitNum = 1;
+
+//using (var connection = new SQLiteConnection(connectionString))
+//{
+//    connection.Open();
+
+//    using (SQLiteCommand command = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table';", connection))
+
+//    {
+
+//        // Execute the command and read the results
+
+//        using (SQLiteDataReader reader = command.ExecuteReader())
+
+//        {
+
+//            while (reader.Read())
+
+//            {
+//                if (reader["name"].ToString() == "sqlite_sequence")
+//                {
+//                    continue;
+//                }
+//                habit = reader["name"].ToString();
+//                Console.WriteLine($"{habitNum}) {habit}");
+//                habitNum++;
+//            }
+
+//        }
+
+//    }
+//}
+
+//Console.WriteLine("\nEnter the number for the habit you want to track, or enter 0 to create a new habit:\n");
+
+//string? habitChoice = Console.ReadLine();
+
 // Function for user to select menu option
+
+Console.WriteLine("\nThese are the habits you currently have logged:");
+
+List<string> habitList = new List<string>();
+
+int habitNum = 1;
+
+try
+{
+    using (var connection = new SQLiteConnection(connectionString))
+    {
+        connection.Open();
+
+        using (SQLiteCommand command = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table';", connection))
+        {
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string? habitName = reader["name"].ToString();
+
+                    // Skip the sqlite_sequence table
+                    if (habitName == "sqlite_sequence")
+                    {
+                        continue;
+                    }
+
+                    if (habitName != null)
+                    {
+                        habitList.Add(habitName);
+                        Console.WriteLine($"{habitNum}) {habitName}");
+                        habitNum++;
+                    }
+                    
+                }
+            }
+        }
+    }
+}
+catch (SQLiteException ex)
+{
+    Console.WriteLine($"Error: {ex.Message}");
+}
+
+Console.WriteLine("\nEnter the number for the habit you want to track, or enter 0 to create a new habit:\n");
+
+string? userInput = Console.ReadLine();
+
+if (int.TryParse(userInput, out int habitIndex) && habitIndex > 0 && habitIndex <= habitList.Count)
+{
+    habit = habitList[habitIndex - 1];
+}
+else if (userInput == "0")
+{
+    Console.WriteLine("Create a new habit...");
+    // Add code to create a new habit
+}
+else
+{
+    Console.WriteLine("Invalid input. Please try again.");
+}
+
+
+// Function to create a new habit
+
+
+
 void UserSelectMenuOption()
 {
-    Console.WriteLine("\nMAIN MENU\n");
+    Console.WriteLine($"\nMAIN MENU - {habit}\n");
     Console.WriteLine("What would you like to do?\n");
     Console.WriteLine("Type 0 to Close Application.");
     Console.WriteLine("Type 1 to View All Records.");
