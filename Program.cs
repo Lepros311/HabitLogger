@@ -95,6 +95,12 @@ void InsertRecord()
 
     string? dateInput = Console.ReadLine();
 
+    while ((!DateTime.TryParseExact(dateInput, "MM-dd-yy", new CultureInfo("en-US"), DateTimeStyles.None, out _)) && (dateInput != "0"))
+    {
+        Console.WriteLine("\nInvalid date. (Format: mm-dd-yy). Type 0 to return to main menu.\n");
+        dateInput = Console.ReadLine();
+    }
+
     if (dateInput == "0")
     {
         return;
@@ -110,6 +116,12 @@ void InsertRecord()
     Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
 
     string? numberInput = Console.ReadLine();
+
+    while (!Int32.TryParse(numberInput, out _) || (Convert.ToInt32(numberInput) < 0))
+    {
+        Console.WriteLine("\nInvalid number. Enter a whole number of 0 or greater.");
+        numberInput = Console.ReadLine();
+    }
 
     int finalInput = Convert.ToInt32(numberInput);
 
@@ -213,6 +225,12 @@ void UpdateRecord()
 
             string? dateInput = Console.ReadLine();
 
+            while ((!DateTime.TryParseExact(dateInput, "MM-dd-yy", new CultureInfo("en-US"), DateTimeStyles.None, out _)) && (dateInput != "0"))
+            {
+                Console.WriteLine("\nInvalid date. (Format: mm-dd-yy). Type 0 to return to main menu.\n");
+                dateInput = Console.ReadLine();
+            }
+
             if (dateInput == "0")
             {
                 return;
@@ -228,6 +246,12 @@ void UpdateRecord()
             Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
 
             string? numberInput = Console.ReadLine();
+
+            while (!Int32.TryParse(numberInput, out _) || (Convert.ToInt32(numberInput) < 0))
+            {
+                Console.WriteLine("\nInvalid number. Enter a whole number of 0 or greater.");
+                numberInput = Console.ReadLine();
+            }
 
             int finalInput = Convert.ToInt32(numberInput);
 
