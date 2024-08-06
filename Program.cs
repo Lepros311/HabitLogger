@@ -6,6 +6,25 @@ using System.Globalization;
 string? userMenuChoice;
 bool closeApp = false;
 
+string? habit;
+string? unitOfMeasure;
+
+do
+{
+    Console.WriteLine("What habit would you like to track?");
+    habit = Console.ReadLine();
+    if (habit != null)
+    {
+        habit = habit.Replace(" ", "_");
+    }
+} while (habit == null);
+
+do
+{
+    Console.WriteLine("What unit of measure would you like to use (e.g., glasses of water, hours of sleep, miles run, etc.)?");
+    unitOfMeasure = Console.ReadLine();
+} while (unitOfMeasure == null);
+
 string connectionString = @"Data Source=HabitLogger.db";
 
 using (var connection = new SQLiteConnection(connectionString))
@@ -13,7 +32,7 @@ using (var connection = new SQLiteConnection(connectionString))
     connection.Open();
     var tableCmd = connection.CreateCommand();
 
-    tableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS drinking_water (
+    tableCmd.CommandText = @$"CREATE TABLE IF NOT EXISTS {habit} (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 Date TEXT,
                                 Quantity INTEGER
@@ -53,7 +72,7 @@ void ViewAllRecords()
         connection.Open();
         var tableCmd = connection.CreateCommand();
         tableCmd.CommandText =
-            $"SELECT * FROM drinking_water";
+            $"SELECT * FROM {habit}";
 
         List<DrinkingWater> tableData = new();
 
@@ -74,17 +93,18 @@ void ViewAllRecords()
         }
         else
         {
-            Console.WriteLine("No rows found");
+            Console.WriteLine("\nNo rows found");
         }
 
         connection.Close();
 
-        Console.WriteLine("-----------------------------------------------\n");
+        Console.WriteLine("------------------------------------------------------------------");
+        Console.WriteLine($"Habit Tracked: {habit}; Unit of Measure: {unitOfMeasure}");
         foreach (var dw in tableData)
         {
             Console.WriteLine($"{dw.ID} - {dw.Date.ToString("MMM-dd-yyyy")} - Quantity: {dw.Quantity}");
         }
-        Console.WriteLine("-----------------------------------------------\n");
+        Console.WriteLine("------------------------------------------------------------------\n");
     }
 }
 
@@ -113,7 +133,7 @@ void InsertRecord()
         date = dateInput;
     }
 
-    Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
+    Console.WriteLine($"Please insert {unitOfMeasure} or other measure of your choice (no decimals allowed)");
 
     string? numberInput = Console.ReadLine();
 
@@ -132,7 +152,7 @@ void InsertRecord()
         connection.Open();
         var tableCmd = connection.CreateCommand();
         tableCmd.CommandText =
-            $"INSERT INTO drinking_water(date, quantity) VALUES('{date}', {quantity})";
+            $"INSERT INTO {habit}(date, quantity) VALUES('{date}', {quantity})";
 
         tableCmd.ExecuteNonQuery();
 
@@ -167,7 +187,7 @@ void DeleteRecord()
         connection.Open();
         var tableCmd = connection.CreateCommand();
 
-        tableCmd.CommandText = $"DELETE from drinking_water WHERE ID = '{recordID}'";
+        tableCmd.CommandText = $"DELETE from {habit} WHERE ID = '{recordID}'";
 
         int rowCount = tableCmd.ExecuteNonQuery();
 
@@ -212,7 +232,7 @@ void UpdateRecord()
             connection.Open();
 
             var checkCmd = connection.CreateCommand();
-            checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM drinking_water WHERE ID = {recordID})";
+            checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM {habit} WHERE ID = {recordID})";
             int checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());
 
             if (checkQuery == 0)
@@ -243,7 +263,7 @@ void UpdateRecord()
                 date = dateInput;
             }
 
-            Console.WriteLine("Please insert number of glasses or other measure of your choice (no decimals allowed)");
+            Console.WriteLine($"Please insert {unitOfMeasure} or other measure of your choice (no decimals allowed)");
 
             string? numberInput = Console.ReadLine();
 
@@ -258,7 +278,7 @@ void UpdateRecord()
             int quantity = finalInput;
 
             var tableCmd = connection.CreateCommand();
-            tableCmd.CommandText = $"UPDATE drinking_water SET date = '{date}', quantity = {quantity} WHERE ID = {recordID}";
+            tableCmd.CommandText = $"UPDATE {habit} SET date = '{date}', quantity = {quantity} WHERE ID = {recordID}";
 
             if (connection.State != System.Data.ConnectionState.Open)
             {
