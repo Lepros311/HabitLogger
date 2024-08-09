@@ -25,6 +25,9 @@ void ViewHabitsLogged()
 
     int habitNum = 1;
 
+    habitList.Clear();
+    habitUnitsList.Clear();
+
     try
     {
         using (var connection = new SQLiteConnection(connectionString))
@@ -50,6 +53,23 @@ void ViewHabitsLogged()
                             habitList.Add(habitName);
                             Console.WriteLine($"{habitNum}) {habitName}");
                             habitNum++;
+
+                            using (SQLiteCommand columnCommand = new SQLiteCommand($"PRAGMA table_info({habitName})", connection))
+                            {
+                                using (SQLiteDataReader columnReader = columnCommand.ExecuteReader())
+                                {
+                                    while (columnReader.Read())
+                                    {
+                                        string? columnName = columnReader["name"].ToString();
+                                        if (columnName != "Id" && columnName != "Date" &&  columnName != "Quantity")
+                                        {
+                                            unitOfMeasure = columnName;
+                                            break;
+                                        }
+                                    }
+                                    habitUnitsList.Add(unitOfMeasure!);
+                                }
+                            }
                         }
 
                     }
@@ -57,12 +77,13 @@ void ViewHabitsLogged()
             }
         }
     }
-
     catch (SQLiteException ex)
     {
         Console.WriteLine($"Error: {ex.Message}");
     }
 }
+
+
 
 void HabitsListResult()
 {
@@ -132,7 +153,7 @@ void CreateHabit()
         tableCmd.CommandText = @$"CREATE TABLE IF NOT EXISTS {habit} (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 Date TEXT,
-                                Quantity INTEGER,
+                                Quantity REAL,
                                 {unitOfMeasure} TEXT
                                 )";
 
@@ -213,7 +234,7 @@ void ViewAllRecords(string habit)
                 {
                     ID = reader.GetInt32(0),
                     Date = DateTime.ParseExact(reader.GetString(1), "MM-dd-yy", new CultureInfo("en-US")),
-                    Quantity = reader.GetInt32(2)
+                    Quantity = reader.GetDecimal(2)
                 });
             }
         }
@@ -456,6 +477,6 @@ public class HabitBeingLogged
 
     public DateTime Date { get; set; }
 
-    public int Quantity { get; set; }
+    public decimal Quantity { get; set; }
 
 }
