@@ -21,6 +21,7 @@ int habitIndex = 0;
 // Function for user to select from list of habits
 void ViewHabitsLogged()
 {
+    //Console.Clear();
     Console.WriteLine("\nThese are the habits you currently have logged:");
 
     int habitNum = 1;
@@ -83,8 +84,7 @@ void ViewHabitsLogged()
     }
 }
 
-
-
+// Function to show options for list of habits
 void HabitsListResult()
 {
     if (habitList.Count < 1)
@@ -163,25 +163,26 @@ void CreateHabit()
     }
 }
 
-
 // Function for Main Menu
 void UserSelectMenuOption(string habit)
 {
-    Console.WriteLine($"\nMAIN MENU - {habit}\n");
+    //Console.Clear();
+    Console.WriteLine($"\nHABIT - {habit}\n");
     Console.WriteLine("What would you like to do?\n");
     Console.WriteLine("Type 0 to Close Application.");
     Console.WriteLine("Type 1 to View All Records.");
     Console.WriteLine("Type 2 to Insert Record.");
     Console.WriteLine("Type 3 to Delete Record.");
     Console.WriteLine("Type 4 to Update Record.");
-    Console.WriteLine("Type 5 to View Other Habits.\n");
-    string[] menuOptions = { "0", "1", "2", "3", "4", "5" };
+    Console.WriteLine("Type 5 to Delete This Habit.");
+    Console.WriteLine("Type 6 to View Other Habits.\n");
+    string[] menuOptions = { "0", "1", "2", "3", "4", "5", "6" };
     do
     {
         userMenuChoice = Console.ReadLine();
         if (!menuOptions.Contains(userMenuChoice))
         {
-            Console.WriteLine("That is not a valid option. You must enter 0, 1, 2, 3, 4, or 5");
+            Console.WriteLine("That is not a valid option. You must enter 0, 1, 2, 3, 4, 5, or 6");
         }
     } while (!menuOptions.Contains(userMenuChoice));
 
@@ -205,6 +206,11 @@ void UserSelectMenuOption(string habit)
             UpdateRecord(habit);
             break;
         case "5":
+            DeleteHabit(habit);
+            ViewHabitsLogged();
+            HabitsListResult();
+            break;
+        case "6":
             ViewHabitsLogged();
             HabitsListResult();
             break;
@@ -233,7 +239,7 @@ void ViewAllRecords(string habit)
                 new HabitBeingLogged
                 {
                     ID = reader.GetInt32(0),
-                    Date = DateTime.ParseExact(reader.GetString(1), "MM-dd-yy", new CultureInfo("en-US")),
+                    Date = DateTime.ParseExact(reader.GetString(1), "M-d-yy", new CultureInfo("en-US")),
                     Quantity = reader.GetDecimal(2)
                 });
             }
@@ -460,6 +466,41 @@ void UpdateRecord(string habit)
             break;
         }
     }
+}
+
+void DeleteHabit(string habit)
+{
+    Console.WriteLine($"Are you sure you want to delete the {habit} habit and all of its records? (y/n)");
+    userInput = Console.ReadLine();
+    userInput = userInput!.Trim().ToLower();
+    if ((userInput != null) && (userInput == "y" || userInput == "yes"))
+    {
+        // Assume you have a connection string and a table name
+        string tableName = habit;
+
+        try
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = $"DROP TABLE IF EXISTS {habit}";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (SQLiteException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+    else
+    {
+        return;
+    }
+    
 }
 
 
