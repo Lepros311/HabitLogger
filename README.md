@@ -1,6 +1,6 @@
 # HabitLogger
 
-This is my first CRUD application. It's the first thing I've created that interacts with a database. I built it using C# and SQLite. This project is part of the curriculum from The C# Academy.
+This is my first CRUD application. It's the first thing I've created that interacts with a database. I built it using C# and SQLite. This project is part of the curriculum from [The C# Academy](https://www.thecsharpacademy.com/).
 
 ## Requirements
 
@@ -23,7 +23,7 @@ This is my first CRUD application. It's the first thing I've created that intera
 ## Getting Started
 
 Upon initially running the program, it will check whether there are any existing habits created. If not, the user will be asked what habit they would like to start tracking:
-![image of initial prompt](https://ibb.co/DLnX3k6)
+![image of initial prompt](screenshots/initial_prompt.png)
 
 Entering the habit name and pressing enter will create the table for that habit. You will then be asked for the unit of measure for that habit:
 ![image of prompts for habit name and unit of measure](https://ibb.co/JC2knqs)
@@ -36,5 +36,5 @@ To switch between habits or to create other habits, select 6 from the habit menu
 
 ## Try It Out!
 
-[HabitLogger]()
+[HabitLogger](https://replit.com/@lepros/HabitLogger)
 
