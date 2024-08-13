@@ -26,13 +26,13 @@ Upon initially running the program, it will check whether there are any existing
 ![image of initial prompt](screenshots/initial_prompt.png)
 
 Entering the habit name and pressing enter will create the table for that habit. You will then be asked for the unit of measure for that habit:
-![image of prompts for habit name and unit of measure](https://ibb.co/JC2knqs)
+![image of prompts for habit name and unit of measure](screenshots/prompts.png)
 
 After entering the habit and its unit of measure, you will see the menu for that habit:
-![image of habit menu](https://ibb.co/yyhCTx3)
+![image of habit menu](screenshots/habit_menu.png)
 
 To switch between habits or to create other habits, select 6 from the habit menu:
-![image of habit list and prompt](https://ibb.co/FXQwMk0)
+![image of habit list and prompt](screenshots/habit_list.png)
 
 ## Try It Out!
 
